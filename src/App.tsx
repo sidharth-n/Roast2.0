@@ -396,7 +396,7 @@ function App() {
 
             <motion.button
               animate={{
-                scale: [1, 1.09, 1],
+                scale: [1, 1.2, 1],
               }}
               transition={{
                 duration: 1.5,
@@ -418,7 +418,7 @@ function App() {
                          transform transition-all duration-200 
                          shadow-lg hover:shadow-red-600/50 
                          border-b-4 border-[#cc0000]
-                         hover:border-b-2 hover:translate-y-[2px]"
+                         hover:border-b-2 hover:translate-y-[2px] pricedown-font"
             >
               {/* Shine effect */}
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shine blur-lg"></span>
