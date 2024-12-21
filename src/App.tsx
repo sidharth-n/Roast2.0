@@ -462,7 +462,7 @@ function App() {
                 repeat: Infinity,
                 repeatType: "reverse",
               }}
-              className="absolute bottom-11 text-center flex flex-col items-center"
+              className="absolute bottom-0 text-center flex flex-col items-center"
             >
               <div className="text-[#ff3e3e] text-sm  text-center">
                 See Past Missions
