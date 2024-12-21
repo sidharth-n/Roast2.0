@@ -270,7 +270,7 @@ function App() {
         <div className="absolute inset-0 bg-scanlines"></div>
 
         {/* Stats Panel Container */}
-        <div className="absolute left-0 top-4">
+        <div className="absolute left-0 top-4 z-30">
           {/* Expand Button - Shows when panel is hidden */}
           {!isStatsPanelVisible && (
             <motion.button
@@ -325,7 +325,8 @@ function App() {
             {/* GTA-style container box */}
             <div
               className="inline-block bg-black/60 backdrop-blur-sm border-2 border-[#ff3e3e]/30 
-                            p-4 rounded-lg shadow-2xl relative overflow-hidden"
+                            p-4 rounded-lg shadow-2xl relative overflow-hidden
+                            scale-90"
             >
               {/* Animated gradient overlay */}
               <div
@@ -373,24 +374,48 @@ function App() {
           <HeroAwards />
 
           {/* Mission Start Button - New Addition */}
-          <motion.button
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 2.4 }}
-            whileHover={{ scale: 1.05 }}
-            onClick={() =>
-              document
-                .getElementById("roast-form")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="relative group bg-[#ff3e3e] hover:bg-[#ff5555] text-white px-8 md:px-12 py-3 md:py-4 
-                     text-xl md:text-2xl font-bold rounded-lg transform transition-all duration-200 
-                     shadow-lg hover:shadow-red-600/50 border-b-4 border-[#cc0000]"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className=" relative"
           >
-            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shine"></span>
-            <span className="absolute -inset-1 bg-[#ff3e3e]/20 animate-pulse rounded-lg blur-lg"></span>
-            START MISSION
-          </motion.button>
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              whileHover={{
+                scale: 1.05,
+                transition: { duration: 0.2 },
+              }}
+              onClick={() =>
+                document
+                  .getElementById("roast-form")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="relative group bg-[#ff3e3e] hover:bg-[#ff5555] 
+                         text-white px-8 py-3
+                         text-xl font-bold rounded-lg 
+                         transform transition-all duration-200 
+                         shadow-lg hover:shadow-red-600/50 
+                         border-b-4 border-[#cc0000]
+                         hover:border-b-2 hover:translate-y-[2px]"
+            >
+              {/* Shine effect */}
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shine"></span>
+              {/* Pulsing glow */}
+              <span className="absolute -inset-1 bg-[#ff3e3e]/20 animate-pulse rounded-lg blur-lg"></span>
+              {/* Attention arrow */}
+              <motion.span
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="absolute -right-8 text-[#ff3e3e] opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                →
+              </motion.span>
+              START MISSION
+            </motion.button>
+          </motion.div>
 
           {/* Mission Stats - New Addition */}
           <motion.div
@@ -546,6 +571,55 @@ function App() {
       )}
 
       <audio ref={notificationSound} src="/notification.mp3" />
+
+      {/* Add to your global styles */}
+      <style jsx global>{`
+        @keyframes ping-slow {
+          0% {
+            transform: scale(1);
+            opacity: 0.3;
+          }
+          50% {
+            transform: scale(1.05);
+            opacity: 0.15;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 0.3;
+          }
+        }
+
+        .animate-ping-slow {
+          animation: ping-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-slow {
+          0%,
+          100% {
+            opacity: 0.2;
+          }
+          50% {
+            opacity: 0.4;
+          }
+        }
+
+        .animate-pulse-slow {
+          animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes shine {
+          from {
+            transform: translateX(-100%);
+          }
+          to {
+            transform: translateX(100%);
+          }
+        }
+
+        .animate-shine {
+          animation: shine 3s infinite;
+        }
+      `}</style>
     </div>
   )
 }
