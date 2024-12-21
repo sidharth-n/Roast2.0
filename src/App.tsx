@@ -378,12 +378,31 @@ function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className=" relative"
+            className="relative"
           >
+            {/* Pulsing background effect */}
+            <motion.div
+              animate={{
+                scale: [1, 1.05, 1],
+                opacity: [0.15, 0.25, 0.15],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute inset-0 bg-[#ff3e3e] rounded-lg blur-xl"
+            />
+
             <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
+              animate={{
+                scale: [1, 1.09, 1],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
               whileHover={{
                 scale: 1.05,
                 transition: { duration: 0.2 },
@@ -402,17 +421,8 @@ function App() {
                          hover:border-b-2 hover:translate-y-[2px]"
             >
               {/* Shine effect */}
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shine"></span>
-              {/* Pulsing glow */}
-              <span className="absolute -inset-1 bg-[#ff3e3e]/20 animate-pulse rounded-lg blur-lg"></span>
-              {/* Attention arrow */}
-              <motion.span
-                animate={{ x: [0, 5, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="absolute -right-8 text-[#ff3e3e] opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                →
-              </motion.span>
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shine blur-lg"></span>
+              {/* Subtle attention indicator */}
               START MISSION
             </motion.button>
           </motion.div>
@@ -452,7 +462,7 @@ function App() {
                 repeat: Infinity,
                 repeatType: "reverse",
               }}
-              className="absolute bottom-0  text-center flex flex-col items-center"
+              className="absolute bottom-11 text-center flex flex-col items-center"
             >
               <div className="text-[#ff3e3e] text-sm  text-center">
                 See Past Missions
