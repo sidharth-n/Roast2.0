@@ -136,7 +136,7 @@ const RoastForm: React.FC<Props> = ({ onSubmit, isSubmitting = false }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-12">
       {/* Step Title with GTA style */}
       <h2
         className="text-4xl title-font text-[#fffbfb] mb-12 text-center"

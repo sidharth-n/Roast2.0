@@ -20,6 +20,7 @@ import HeroAwards from "./components/HeroAwards"
 import { BACKGROUND_IMAGES } from "./config/images"
 import HowItWorks from "./components/HowItWorks"
 import BackToTop from "./components/BackToTop"
+import PricingModal from "./components/PricingModal"
 
 import {
   INITIAL_ROAST_COUNT,
@@ -61,6 +62,7 @@ function App() {
   const notificationSound = useRef<HTMLAudioElement | null>(null)
   const [showHowItWorks, setShowHowItWorks] = useState(false)
   const [showScrollIndicator, setShowScrollIndicator] = useState(true)
+  const [showPricingModal, setShowPricingModal] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -203,7 +205,7 @@ function App() {
 
   const handleConsentConfirm = () => {
     if (currentFormData) {
-      initiateRoastCall(currentFormData)
+      setShowPricingModal(true)
     }
   }
 
@@ -226,6 +228,14 @@ function App() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // New function to handle agent selection
+  const handleAgentSelect = (agentName: string) => {
+    setShowPricingModal(false)
+    if (currentFormData) {
+      initiateRoastCall(currentFormData)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white relative font-digital">
@@ -407,12 +417,11 @@ function App() {
                 scale: 1.05,
                 transition: { duration: 0.2 },
               }}
-              onClick={() =>
-                document.getElementById("roast-form")?.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start", // This ensures it scrolls to the top of the section
-                })
-              }
+              onClick={() => {
+                document
+                  .getElementById("roast-form")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" })
+              }}
               className="relative group bg-[#ff3e3e] hover:bg-[#ff5555] 
                          text-white px-8 py-3
                          text-xl font-bold rounded-lg 
@@ -475,7 +484,6 @@ function App() {
       </section>
 
       <SampleSection />
-      <WarningSection />
 
       {/* Roast Form Section */}
       <section
@@ -510,7 +518,7 @@ function App() {
           <FAQ />
         </div>
       </section>
-
+      <WarningSection />
       <Footer />
       <MusicPlayer audioUrl={AUDIO_URL} autoPlay={isMusicEnabled} />
       <BackToTop />
@@ -615,6 +623,15 @@ function App() {
           animation: shine 3s infinite;
         }
       `}</style>
+
+      <AnimatePresence>
+        {showPricingModal && (
+          <PricingModal
+            onClose={() => setShowPricingModal(false)}
+            onSelectPlan={handleAgentSelect}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
