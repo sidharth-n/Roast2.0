@@ -21,6 +21,8 @@ import { BACKGROUND_IMAGES } from "./config/images"
 import HowItWorks from "./components/HowItWorks"
 import BackToTop from "./components/BackToTop"
 import PricingModal from "./components/PricingModal"
+import PaymentConfirmationModal from "./components/PaymentConfirmationModal"
+import PaymentResultModal from "./components/PaymentResultModal"
 
 import {
   INITIAL_ROAST_COUNT,
@@ -63,6 +65,10 @@ function App() {
   const [showHowItWorks, setShowHowItWorks] = useState(false)
   const [showScrollIndicator, setShowScrollIndicator] = useState(true)
   const [showPricingModal, setShowPricingModal] = useState(false)
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+  const [showPaymentConfirmation, setShowPaymentConfirmation] = useState(false)
+  const [showPaymentResult, setShowPaymentResult] = useState(false)
+  const [paymentSuccess, setPaymentSuccess] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -204,9 +210,8 @@ function App() {
   }
 
   const handleConsentConfirm = () => {
-    if (currentFormData) {
-      setShowPricingModal(true)
-    }
+    setIsConsentModalOpen(false)
+    setShowPricingModal(true)
   }
 
   const handleConsentClose = () => {
@@ -230,10 +235,29 @@ function App() {
   }, [])
 
   // New function to handle agent selection
-  const handleAgentSelect = (agentName: string) => {
+  const handleAgentSelect = (agent: Agent) => {
+    setSelectedAgent(agent)
     setShowPricingModal(false)
-    if (currentFormData) {
+    setShowPaymentConfirmation(true)
+  }
+
+  // Step 4: Payment Confirmation -> Process Payment
+  const handlePaymentConfirmation = (withRecording: boolean) => {
+    setShowPaymentConfirmation(false)
+    // For now, just simulate success
+    setPaymentSuccess(true)
+    setShowPaymentResult(true)
+  }
+
+  // Step 5: Payment Result -> Either initiate call or go back
+  const handlePaymentResult = () => {
+    setShowPaymentResult(false)
+    if (paymentSuccess && currentFormData) {
+      // Initiate the call here
       initiateRoastCall(currentFormData)
+    } else {
+      // On failure, go back to agent selection
+      setShowPricingModal(true)
     }
   }
 
@@ -629,6 +653,28 @@ function App() {
           <PricingModal
             onClose={() => setShowPricingModal(false)}
             onSelectPlan={handleAgentSelect}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showPaymentConfirmation && selectedAgent && (
+          <PaymentConfirmationModal
+            agent={selectedAgent}
+            onClose={() => {
+              setShowPaymentConfirmation(false)
+              setShowPricingModal(true) // Go back to agent selection
+            }}
+            onConfirm={handlePaymentConfirmation}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showPaymentResult && (
+          <PaymentResultModal
+            success={paymentSuccess}
+            onClose={handlePaymentResult}
           />
         )}
       </AnimatePresence>

@@ -2,6 +2,25 @@ import React, { useState } from "react"
 import { motion } from "framer-motion"
 import { Clock, Flame, Play, Square, Mic } from "lucide-react"
 
+interface Agent {
+  name: string
+  codename: string
+  price: string
+  duration: string
+  roastLevel: string
+  icon: string
+  voiceSample: string
+  description: string
+  buttonText: string
+  recording: boolean
+  popular?: boolean
+}
+
+interface PricingModalProps {
+  onClose: () => void
+  onSelectPlan: (agent: Agent) => void
+}
+
 const PricingModal = ({ onClose, onSelectPlan }: PricingModalProps) => {
   const [playingAudio, setPlayingAudio] = useState<string | null>(null)
 
@@ -11,7 +30,7 @@ const PricingModal = ({ onClose, onSelectPlan }: PricingModalProps) => {
       codename: "ROOKIE",
       price: "FREE",
       duration: "30s",
-      icon: "/images/agent-basic.png",
+      icon: "images/agent-basic.png",
       voiceSample: "/audio/basic-agent.mp3",
       roastLevel: "Basic",
       description: "Perfect for test missions",
@@ -77,7 +96,7 @@ const PricingModal = ({ onClose, onSelectPlan }: PricingModalProps) => {
             className="text-4xl title-font text-[#fffbfb] mb-4 text-center"
             style={{ zIndex: 100 }}
           >
-            MISSION AGENTS
+            AGENTS LIST
           </h2>
           <p className="text-[#ff3e3e] text-lg tracking-[0.2em] uppercase font-digital">
             Choose Your Agent
@@ -163,7 +182,7 @@ const PricingModal = ({ onClose, onSelectPlan }: PricingModalProps) => {
 
               {/* Action Button - Updated styling */}
               <motion.button
-                onClick={() => onSelectPlan(agent.name)}
+                onClick={() => onSelectPlan(agent)}
                 className={`w-full py-2 px-4 rounded font-bold
                           transform transition-all duration-200 
                           border-b-4 hover:border-b-2 hover:translate-y-[2px]
