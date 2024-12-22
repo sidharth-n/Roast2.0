@@ -228,7 +228,7 @@ function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white relative">
+    <div className="min-h-screen bg-[#0a0a0a] text-white relative font-digital">
       <div className="bg-noise"></div>
 
       {/* Loading Screen */}
@@ -408,9 +408,10 @@ function App() {
                 transition: { duration: 0.2 },
               }}
               onClick={() =>
-                document
-                  .getElementById("roast-form")
-                  ?.scrollIntoView({ behavior: "smooth" })
+                document.getElementById("roast-form")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start", // This ensures it scrolls to the top of the section
+                })
               }
               className="relative group bg-[#ff3e3e] hover:bg-[#ff5555] 
                          text-white px-8 py-3
@@ -479,34 +480,18 @@ function App() {
       {/* Roast Form Section */}
       <section
         id="roast-form"
-        className="py-20 px-4 relative"
+        className="pt-12 pb-16 relative scroll-mt-0"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url(${BACKGROUND_IMAGES.form})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        {/* How It Works Button */}
-        <div className="max-w-3xl mx-auto mb-4">
-          <button
-            onClick={() => setShowHowItWorks(true)}
-            className="text-[#4C1CA1] hover:text-[#FFD700] transition-colors text-sm relative group"
-          >
-            <span className="relative z-10">How does it work?</span>
-            <span className="absolute inset-0 bg-[#4C1CA1]/20 rounded-full blur-sm animate-pulse-slow"></span>
-          </button>
-        </div>
+        {/* GTA-style Section Header */}
 
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto px-4">
           <RoastForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
         </div>
-
-        {/* How It Works Modal */}
-        <AnimatePresence>
-          {showHowItWorks && (
-            <HowItWorks onClose={() => setShowHowItWorks(false)} />
-          )}
-        </AnimatePresence>
       </section>
 
       {/* FAQ Section */}
@@ -556,7 +541,7 @@ function App() {
             className="bg-[#1a1a1a] p-8 rounded-lg max-w-md mx-4 border border-[#ff3e3e]/20"
           >
             <h2 className="text-xl font-bold mb-4 text-center text-[#ff3e3e]">
-              Roast with background music?
+              Enable background music?
             </h2>
 
             <div className="flex gap-4">
