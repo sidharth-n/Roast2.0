@@ -131,13 +131,13 @@ const CallSummary: React.FC<CallSummaryProps> = ({
             <div
               className={`flex items-center justify-center gap-1 mb-1 ${stat.color}`}
             >
+              <p className="text-[10px] text-gray-500 text-center mt-1">
+                {stat.label}
+              </p>
               {stat.icon}
             </div>
             <p className="text-lg font-digital text-white text-center">
               {stat.value}
-            </p>
-            <p className="text-[10px] text-gray-500 text-center mt-1">
-              {stat.label}
             </p>
           </motion.div>
         ))}
