@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Phone, PhoneCall, PhoneIncoming, CheckCircle } from "lucide-react"
+import {
+  Phone,
+  PhoneCall,
+  PhoneIncoming,
+  CheckCircle,
+  Target,
+  Skull,
+  Sparkles,
+} from "lucide-react"
 import CallSummary from "./CallSummary"
 
 interface CallStatusModalProps {
@@ -54,6 +62,7 @@ const CallStatusModal: React.FC<CallStatusModalProps> = ({
           `https://roast-call-proxy.vercel.app/proxy/call?callId=${currentCallId}`
         )
         const data = await response.json()
+        console.log("Recording URL:", data.recording_url) // Debug recording URL
         console.log("Call status data:", data) // Debug log
 
         if (!hasCompletedOnce) {
@@ -101,17 +110,29 @@ const CallStatusModal: React.FC<CallStatusModalProps> = ({
       case "queued":
         return (
           <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            animate={{
+              rotate: 360,
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+              scale: { duration: 1, repeat: Infinity },
+            }}
           >
-            <Phone className="w-12 h-12 text-yellow-500" />
+            <Target className="w-12 h-12 text-yellow-500" />
           </motion.div>
         )
       case "ringing":
         return (
           <motion.div
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
+            animate={{
+              scale: [1, 1.2, 1],
+              rotate: [-5, 5, -5],
+            }}
+            transition={{
+              duration: 0.5,
+              repeat: Infinity,
+            }}
           >
             <PhoneIncoming className="w-12 h-12 text-orange-500" />
           </motion.div>
@@ -119,16 +140,33 @@ const CallStatusModal: React.FC<CallStatusModalProps> = ({
       case "in-progress":
         return (
           <motion.div
-            animate={{ opacity: [1, 0.5, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
+            animate={{
+              opacity: [1, 0.5, 1],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+            }}
           >
-            <PhoneCall className="w-12 h-12 text-green-500" />
+            <Skull className="w-12 h-12 text-green-500" />
           </motion.div>
         )
       case "completed":
-        return <CheckCircle className="w-12 h-12 text-[#ff3e3e]" />
+        return (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{
+              scale: [1.5, 1],
+              rotate: [0, 360],
+            }}
+            transition={{ duration: 0.5 }}
+          >
+            <Sparkles className="w-12 h-12 text-[#ff3e3e]" />
+          </motion.div>
+        )
       default:
-        return <Phone className="w-12 h-12 text-gray-500" />
+        return <Target className="w-12 h-12 text-gray-500" />
     }
   }
 

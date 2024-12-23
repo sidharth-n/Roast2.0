@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import ActivityCard from './ActivityCard';
+import React, { useState, useEffect } from "react"
+import ActivityCard from "./ActivityCard"
 
 interface RoastActivity {
-  id: number;
-  roaster: string;
-  target: string;
-  location: string;
-  timestamp: Date;
+  id: number
+  roaster: string
+  target: string
+  location: string
+  timestamp: Date
 }
 
 const MOCK_ACTIVITIES: RoastActivity[] = [
@@ -15,36 +15,36 @@ const MOCK_ACTIVITIES: RoastActivity[] = [
     roaster: "Mike",
     target: "Chris",
     location: "Los Santos",
-    timestamp: new Date()
+    timestamp: new Date(),
   },
   {
     id: 2,
     roaster: "Sarah",
     target: "John",
     location: "Vice City",
-    timestamp: new Date(Date.now() - 120000)
+    timestamp: new Date(Date.now() - 120000),
   },
   {
     id: 3,
     roaster: "Alex",
     target: "Emma",
     location: "Liberty City",
-    timestamp: new Date(Date.now() - 300000)
-  }
-];
+    timestamp: new Date(Date.now() - 300000),
+  },
+]
 
 const MOCK_NAMES = {
   roasters: ["Mike", "Sarah", "Alex", "Emma", "Chris"],
   targets: ["John", "Jane", "Bob", "Alice", "Tom"],
-  locations: ["Los Santos", "Vice City", "Liberty City"]
-};
+  locations: ["Los Santos", "Vice City", "Liberty City"],
+}
 
 const getRandomItem = <T,>(array: T[]): T => {
-  return array[Math.floor(Math.random() * array.length)];
-};
+  return array[Math.floor(Math.random() * array.length)]
+}
 
 const ActivityFeed: React.FC = () => {
-  const [activities, setActivities] = useState<RoastActivity[]>(MOCK_ACTIVITIES);
+  const [activities, setActivities] = useState<RoastActivity[]>(MOCK_ACTIVITIES)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -53,18 +53,18 @@ const ActivityFeed: React.FC = () => {
         roaster: getRandomItem(MOCK_NAMES.roasters),
         target: getRandomItem(MOCK_NAMES.targets),
         location: getRandomItem(MOCK_NAMES.locations),
-        timestamp: new Date()
-      };
-      
-      setActivities(prev => [newActivity, ...prev.slice(0, 4)]);
-    }, 5000);
+        timestamp: new Date(),
+      }
 
-    return () => clearInterval(interval);
-  }, []);
+      setActivities(prev => [newActivity, ...prev.slice(0, 4)])
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className="space-y-4">
-      {activities.map((activity) => (
+      {activities.map(activity => (
         <ActivityCard
           key={activity.id}
           roaster={activity.roaster}
@@ -74,7 +74,7 @@ const ActivityFeed: React.FC = () => {
         />
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default ActivityFeed;
+export default ActivityFeed
