@@ -23,6 +23,7 @@ import BackToTop from "./components/BackToTop"
 import PricingModal from "./components/PricingModal"
 import PaymentConfirmationModal from "./components/PaymentConfirmationModal"
 import PaymentResultModal from "./components/PaymentResultModal"
+import CallStatusModal from "./components/CallStatusModal"
 
 import {
   INITIAL_ROAST_COUNT,
@@ -70,6 +71,8 @@ function App() {
   const [showPaymentResult, setShowPaymentResult] = useState(false)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
   const [isSoundEnabled, setIsSoundEnabled] = useState(false)
+  const [showCallStatus, setShowCallStatus] = useState(false)
+  const [currentCallId, setCurrentCallId] = useState<string | null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -160,7 +163,7 @@ function App() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             phone_number: `${formData.countryCode}${formData.phone}`,
-            task: `You are calling ${formData.targetName}. Their job is: ${formData.targetJob}. and this is a crazy embarassing fact about them: ${formData.funFacts}. Start by greeting with their name and continue only after their reply and when they reply back start roasting them based on these details we have. mainly roast based on their job, name and then the crazy fact. roast them so hard and be as mean as possible. be hilarious too. the roast should be so sarcastic and hard and funny. no buttering. make it more like a conversation type. not like long speeche.`,
+            task: `You are calling ${formData.targetName}...`,
             model: "enhanced",
             language: "en",
             voice: "nat",
@@ -185,9 +188,14 @@ function App() {
       }
 
       const result = await response.json()
-      setRoastCount(prev => prev + 1)
 
-      // Show success notification
+      if (result.call_id) {
+        setCurrentCallId(result.call_id)
+        setShowCallStatus(true)
+        setShowPaymentResult(false)
+      }
+
+      setRoastCount(prev => prev + 1)
       setNotification({
         roaster: formData.yourName,
         target: formData.targetName,
@@ -253,14 +261,18 @@ function App() {
 
   // Step 5: Payment Result -> Either initiate call or go back
   const handlePaymentResult = () => {
-    setShowPaymentResult(false)
-    if (paymentSuccess && currentFormData) {
-      // Initiate the call here
+    if (paymentSuccess) {
+      setShowPaymentResult(false)
       initiateRoastCall(currentFormData)
     } else {
-      // On failure, go back to agent selection
-      setShowPricingModal(true)
+      setShowPaymentResult(false)
     }
+  }
+
+  // After successful payment and call initiation
+  const handleCallStart = (callId: string) => {
+    setCurrentCallId(callId)
+    setShowCallStatus(true)
   }
 
   return (
@@ -681,6 +693,19 @@ function App() {
           <PaymentResultModal
             success={paymentSuccess}
             onClose={handlePaymentResult}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showCallStatus && currentCallId && (
+          <CallStatusModal
+            isVisible={showCallStatus}
+            currentCallId={currentCallId}
+            onClose={() => {
+              setShowCallStatus(false)
+              setCurrentCallId(null)
+            }}
           />
         )}
       </AnimatePresence>

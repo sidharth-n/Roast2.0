@@ -249,8 +249,8 @@ const PricingModal: React.FC<PricingModalProps> = ({
                         font-digital tracking-wide text-sm
                         ${
                           agent.popular
-                            ? "bg-[#ff3e3e] hover:bg-[#ff5555] border-[#cc0000] text-white"
-                            : "bg-white/10 hover:bg-white/20 border-white/20 text-white"
+                            ? "bg-[#ff3a3a] hover:bg-[#ff5555] border-[#cc0000] text-white"
+                            : "bg-[#ff3a3a] hover:bg-[#ff5555] border-[#cc0000] text-white"
                         }`}
               >
                 DEPLOY AGENT

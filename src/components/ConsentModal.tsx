@@ -33,9 +33,9 @@ const ConsentModal: React.FC<Props> = ({
         </div>
 
         <div className="space-y-4 mb-6">
-          <p className="text-gray-300">• Each roast call is 2 minutes long</p>
           <p className="text-gray-300">
-            • Calls are made from random numbers - ensure the recipient picks up
+            • Calls are made from random US numbers - ensure the recipient picks
+            up
           </p>
           <p className="text-gray-300">• Credits are non-refundable</p>
           <p className="text-gray-300">
