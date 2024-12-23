@@ -73,6 +73,11 @@ function App() {
   const [isSoundEnabled, setIsSoundEnabled] = useState(false)
   const [showCallStatus, setShowCallStatus] = useState(false)
   const [currentCallId, setCurrentCallId] = useState<string | null>(null)
+  const [callConfig, setCallConfig] = useState<{
+    duration: number
+    intensity: number
+    recording: boolean
+  } | null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -151,10 +156,55 @@ function App() {
     }
   }, [isStatsPanelVisible])
 
-  const initiateRoastCall = async (formData: RoastFormData) => {
+  const initiateRoastCall = async (
+    formData: RoastFormData,
+    agent: Agent,
+    callConfig: {
+      duration: number
+      intensity: number
+      recording: boolean
+    }
+  ) => {
     try {
-      setIsSubmitting(true)
-      setError(null)
+      console.log("Initiating roast call with:", {
+        formData,
+        agent,
+        callConfig,
+      })
+
+      // Map agent codenames to voice IDs
+      const voiceMap = {
+        ROOKIE: "florian",
+        HITMAN: "derek",
+        ASSASSIN: "nat",
+        TERMINATOR: "june",
+      }
+
+      const voice = voiceMap[agent.codename]
+
+      // Construct the roast prompt based on intensity and agent type
+      const intensityPrefix =
+        callConfig.intensity <= 33
+          ? "mild"
+          : callConfig.intensity <= 66
+          ? "spicy"
+          : "savage"
+
+      const prompt = `You are a ${intensityPrefix} roast comedian. Your target is ${
+        formData.targetName
+      }, 
+      who works as a ${
+        formData.targetJob
+      }. Here are some embarrassing facts about them: ${formData.funFacts}. 
+      Call them and deliver a ${intensityPrefix} roast comedy call. Make it personal using the provided facts. 
+      Keep the roast ${agent.roastLevel.toLowerCase()} level as you are ${
+        agent.name
+      }. 
+      The call should last around ${
+        callConfig.duration
+      } minutes. start always by asking 'hey, am i talking with ${
+        formData.targetName
+      }' and continue after their reply`
 
       const response = await fetch(
         "https://roast-call-proxy.vercel.app/proxy/call",
@@ -165,56 +215,29 @@ function App() {
           },
           body: JSON.stringify({
             phone_number: `${formData.countryCode}${formData.phone}`,
-            task: `You are calling ${formData.targetName}. Their job is: ${formData.targetJob}. and this is a crazy embarassing fact about them: ${formData.funFacts}. Start by greeting with their name and continue only after their reply and when they reply back start roasting them based on these details we have. mainly roast based on their job, name and then the crazy fact. roast them so hard and be as mean as possible. be hilarious too. the roast should be so sarcastic and hard and funny. no buttering. make it more like a conversation type. not like long speeche.`,
-            model: "enhanced",
-            language: "en",
-            voice: "nat",
-            max_duration: 1.5,
-            first_sentence: `Hello, am I speaking with ${formData.targetName}?`,
-            wait_for_greeting: false,
-            record: true,
-            voicemail_action: "hangup",
-            voicemail_message: null,
-            answered_by_enabled: true,
-            analysis_schema: {
-              call_duration: "number",
-              answered_by: "string",
-              call_successful: "boolean",
-              customer_response: "string",
-            },
+            voice: voice,
+            task: prompt,
+            max_duration: Math.floor(callConfig.duration * 60), // Convert to seconds
+            record_call: callConfig.recording,
+            intensity_level: callConfig.intensity,
           }),
         }
       )
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null)
-        throw new Error(errorData?.message || "Failed to initiate call")
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const result = await response.json()
+      const data = await response.json()
+      console.log("Call initiated successfully:", data)
 
-      if (result.call_id) {
-        setCurrentCallId(result.call_id)
+      if (data.call_id) {
+        setCurrentCallId(data.call_id)
         setShowCallStatus(true)
-        setShowPaymentResult(false)
       }
-
-      setRoastCount(prev => prev + 1)
-      setNotification({
-        roaster: formData.yourName,
-        target: formData.targetName,
-      })
     } catch (error) {
       console.error("Error initiating roast call:", error)
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Failed to initiate roast call. Please try again later."
-      )
-    } finally {
-      setIsSubmitting(false)
-      setIsConsentModalOpen(false)
-      setCurrentFormData(null)
+      // Handle error appropriately
     }
   }
 
@@ -256,18 +279,25 @@ function App() {
   }
 
   // Step 4: Payment Confirmation -> Process Payment
-  const handlePaymentConfirmation = (withRecording: boolean) => {
+  const handlePaymentConfirmation = (config: {
+    duration: number
+    intensity: number
+    recording: boolean
+  }) => {
     setShowPaymentConfirmation(false)
-    // For now, just simulate success
+    // For now, simulate payment success
     setPaymentSuccess(true)
     setShowPaymentResult(true)
+
+    // Store the call configuration for after payment confirmation
+    setCallConfig(config)
   }
 
   // Step 5: Payment Result -> Either initiate call or go back
   const handlePaymentResult = () => {
-    if (paymentSuccess) {
+    if (paymentSuccess && currentFormData && selectedAgent) {
       setShowPaymentResult(false)
-      initiateRoastCall(currentFormData)
+      initiateRoastCall(currentFormData, selectedAgent, callConfig)
     } else {
       setShowPaymentResult(false)
     }
