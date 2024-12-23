@@ -69,6 +69,7 @@ function App() {
   const [showPaymentConfirmation, setShowPaymentConfirmation] = useState(false)
   const [showPaymentResult, setShowPaymentResult] = useState(false)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [isSoundEnabled, setIsSoundEnabled] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -100,6 +101,7 @@ function App() {
 
   const handleMusicChoice = (choice: boolean) => {
     setIsMusicEnabled(choice)
+    setIsSoundEnabled(choice)
     localStorage.setItem("musicPreference", choice ? "enabled" : "disabled")
     setShowMusicModal(false)
   }
@@ -113,7 +115,7 @@ function App() {
 
       setRoastCount(prev => prev + 1)
 
-      if (notificationSound.current) {
+      if (notificationSound.current && isSoundEnabled) {
         notificationSound.current
           .play()
           .catch(err => console.log("Audio play failed:", err))
@@ -123,7 +125,7 @@ function App() {
     }, NOTIFICATION_INTERVAL)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [isSoundEnabled])
 
   useEffect(() => {
     if (shouldAutoHide) {
@@ -544,7 +546,11 @@ function App() {
       </section>
       <WarningSection />
       <Footer />
-      <MusicPlayer audioUrl={AUDIO_URL} autoPlay={isMusicEnabled} />
+      <MusicPlayer
+        audioUrl={AUDIO_URL}
+        autoPlay={isMusicEnabled}
+        onSoundToggle={setIsSoundEnabled}
+      />
       <BackToTop />
 
       <ConsentModal

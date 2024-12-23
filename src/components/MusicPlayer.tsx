@@ -4,28 +4,35 @@ import { Volume2, VolumeX } from "lucide-react"
 interface MusicPlayerProps {
   audioUrl: string
   autoPlay?: boolean
+  onSoundToggle: (isEnabled: boolean) => void
 }
 
-const MusicPlayer: React.FC<MusicPlayerProps> = ({ audioUrl, autoPlay }) => {
+const MusicPlayer: React.FC<MusicPlayerProps> = ({
+  audioUrl,
+  autoPlay,
+  onSoundToggle,
+}) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
 
   useEffect(() => {
     if (autoPlay && audioRef.current) {
       audioRef.current.play().catch(() => {
-        // Handle autoplay failure
         setIsPlaying(false)
       })
       setIsPlaying(true)
+      onSoundToggle(true)
     }
-  }, [autoPlay])
+  }, [autoPlay, onSoundToggle])
 
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause()
+        onSoundToggle(false)
       } else {
         audioRef.current.play()
+        onSoundToggle(true)
       }
       setIsPlaying(!isPlaying)
     }
