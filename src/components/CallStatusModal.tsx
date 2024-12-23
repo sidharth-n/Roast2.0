@@ -35,7 +35,7 @@ const STATUS_MESSAGES = {
   },
   completed: {
     title: "MISSION ACCOMPLISHED",
-    description: "Target successfully demolished!",
+    description: "Target successfully roasted!",
     color: "text-[#ff3e3e]",
   },
 }

@@ -171,6 +171,8 @@ function App() {
             first_sentence: `Hello, am I speaking with ${formData.targetName}?`,
             wait_for_greeting: false,
             record: true,
+            voicemail_action: "hangup",
+            voicemail_message: null,
             answered_by_enabled: true,
             analysis_schema: {
               call_duration: "number",
