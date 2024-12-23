@@ -186,14 +186,14 @@ const PricingModal: React.FC<PricingModalProps> = ({
                   />
                   <button
                     onClick={() => playVoiceSample(agent.voiceSample)}
-                    className="absolute -bottom-1 -right-1 p-1.5 
-                            bg-[#ff3e3e] rounded-full 
-                            hover:bg-[#ff5555] transition-colors"
+                    className="absolute -bottom-1 -right-1 
+                            bg-black/60 border border-[#ff3e3e]/80 rounded-full 
+                            hover:bg-black/80 hover:border-[#ff3e3e] transition-all p-2"
                   >
                     {playingAudio === agent.voiceSample ? (
-                      <Square className="w-3 h-3 text-white" />
+                      <Square className="w-3 h-3 text-[#ff3e3e]" />
                     ) : (
-                      <Play className="w-3 h-3 text-white" />
+                      <Play className="w-4 h-4 text-[#ff3e3e]" />
                     )}
                   </button>
                 </div>
@@ -264,7 +264,7 @@ const PricingModal: React.FC<PricingModalProps> = ({
         <button
           onClick={onClose}
           className="fixed top-4 right-4 text-white/50 hover:text-white 
-                   transition-colors"
+                   transition-colors text-2xl"
         >
           ✕
         </button>
