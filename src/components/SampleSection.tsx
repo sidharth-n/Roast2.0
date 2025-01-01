@@ -12,9 +12,9 @@ const SampleSection: React.FC = () => {
           PAST MISSIONS
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="flex justify-center">
           {/* Audio Samples */}
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-xl w-full">
             <h3 className="text-2xl text-[#ff3e3e] mb-4 flex items-center gap-2">
               <Play className="w-6 h-6" />
               Audio Samples
@@ -37,7 +37,7 @@ const SampleSection: React.FC = () => {
           </div>
 
           {/* Video Samples */}
-          <div className="space-y-6">
+          {/*      <div className="space-y-6">
             <h3 className="text-2xl text-[#ff3e3e] mb-4 flex items-center gap-2">
               <Video className="w-6 h-6" />
               Video Samples
@@ -59,7 +59,7 @@ const SampleSection: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
