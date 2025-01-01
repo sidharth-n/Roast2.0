@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { motion } from "framer-motion"
 import { Play, Square, Star } from "lucide-react"
 
 interface Agent {
   name: string
   codename: string
-  pricePerMinute: number
+  pricePerCall: string | number
   icon: string
   voiceSample: string
   roastLevel: string
   description: string
   buttonText: string
-  gender: "MALE" | "FEMALE"
+  gender: "FEMALE"
   globalRank: string
   popular?: boolean
-  pricePerCall: string | number
   attractiveness: string
+  maxCallDuration: number
 }
 
 interface PricingModalProps {
@@ -29,55 +29,54 @@ const PricingModal: React.FC<PricingModalProps> = ({
 }) => {
   const [playingAudio, setPlayingAudio] = useState<string | null>(null)
 
-  // Initialize roast counts with Eli (ASSASSIN) having highest
-  const [roastCounts, setRoastCounts] = useState({
-    ROOKIE: 1247,
-    HITMAN: 14582,
-    ASSASSIN: 32671, // Eli starts with highest
-    TERMINATOR: 28914,
-  })
-
-  // Simulate live roast count updates with Eli increasing faster
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRoastCounts(prev => ({
-        ...prev,
-        ROOKIE: prev.ROOKIE + Math.floor(Math.random() * 2),
-        HITMAN: prev.HITMAN + Math.floor(Math.random() * 4),
-        ASSASSIN: prev.ASSASSIN + Math.floor(Math.random() * 8), // Fastest increase
-        TERMINATOR: prev.TERMINATOR + Math.floor(Math.random() * 5),
-      }))
-    }, 2000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  const playVoiceSample = (sampleUrl: string) => {
+  const playVoiceSample = (agent: Agent) => {
     const audio = document.getElementById("voice-sample") as HTMLAudioElement
+    const bgMusic = document.getElementById("bg-music") as HTMLAudioElement
 
-    if (playingAudio === sampleUrl) {
+    if (playingAudio === agent.codename) {
+      // Stop sample playback
       audio.pause()
       audio.currentTime = 0
       setPlayingAudio(null)
+
+      // Restore background music volume
+      if (bgMusic) {
+        bgMusic.volume = 1
+      }
     } else {
       if (playingAudio) {
         audio.pause()
         audio.currentTime = 0
       }
 
-      audio.src = sampleUrl
+      // Lower background music volume
+      if (bgMusic) {
+        bgMusic.volume = 0.2
+      }
+
+      // Play voice sample using agent's name
+      const voiceFile = agent.name.toLowerCase().replace("agent ", "")
+      audio.src = `/voices/${voiceFile}.mp3`
       audio
         .play()
         .then(() => {
-          setPlayingAudio(sampleUrl)
+          setPlayingAudio(agent.codename)
         })
         .catch(error => {
           console.error("Error playing audio:", error)
           setPlayingAudio(null)
+          // Restore volume if play fails
+          if (bgMusic) {
+            bgMusic.volume = 1
+          }
         })
 
+      // Restore background music volume when sample ends
       audio.onended = () => {
         setPlayingAudio(null)
+        if (bgMusic) {
+          bgMusic.volume = 1
+        }
       }
     }
   }
@@ -88,33 +87,35 @@ const PricingModal: React.FC<PricingModalProps> = ({
       codename: "ROOKIE",
       pricePerCall: "FREE",
       icon: "/images/agent-basic.png",
-      voiceSample: "/audio/basic-agent.mp3",
+      voiceSample: "/voices/roxy.mp3",
       roastLevel: "Basic",
       description: "Perfect for first-time roasts",
       buttonText: "DEPLOY FREE",
       gender: "FEMALE",
       globalRank: "#102",
       attractiveness: "4/10",
+      maxCallDuration: 60, // 1 minute
     },
     {
       name: "AGENT JADE",
       codename: "HITMAN",
       pricePerCall: 29,
       icon: "/images/agent-pro.png",
-      voiceSample: "/audio/pro-agent.mp3",
+      voiceSample: "/voices/jade.mp3",
       roastLevel: "Spicy",
       description: "Professional roasting specialist",
       buttonText: "DEPLOY AGENT",
       gender: "FEMALE",
       globalRank: "#34",
       attractiveness: "6/10",
+      maxCallDuration: 90, // 1.5 minutes
     },
     {
       name: "AGENT LUNA",
       codename: "ASSASSIN",
       pricePerCall: 49,
       icon: "/images/agent-elite.png",
-      voiceSample: "/audio/elite-agent.mp3",
+      voiceSample: "/voices/luna.mp3",
       roastLevel: "Extra Hot",
       description: "Elite-tier destruction",
       buttonText: "DEPLOY AGENT",
@@ -122,19 +123,21 @@ const PricingModal: React.FC<PricingModalProps> = ({
       globalRank: "#6",
       popular: true,
       attractiveness: "8/10",
+      maxCallDuration: 120, // 2 minutes
     },
     {
       name: "AGENT NOVA",
       codename: "TERMINATOR",
       pricePerCall: 69,
       icon: "/images/agent-legend.png",
-      voiceSample: "/audio/legendary-agent.mp3",
+      voiceSample: "/voices/nova.mp3",
       roastLevel: "Inferno",
       description: "Maximum carnage",
       buttonText: "DEPLOY AGENT",
       gender: "FEMALE",
       globalRank: "#1",
       attractiveness: "10/10",
+      maxCallDuration: 150, // 2.5 minutes
     },
   ]
 
@@ -191,18 +194,19 @@ const PricingModal: React.FC<PricingModalProps> = ({
                     className="w-20 h-20 rounded border-2 border-[#ff3e3e]/30 object-cover"
                   />
                   <button
-                    onClick={() => playVoiceSample(agent.voiceSample)}
+                    onClick={() => playVoiceSample(agent)}
                     className="absolute -bottom-1 -right-1 
                             bg-black/60 border border-[#ff3e3e]/80 rounded-full 
                             hover:bg-black/80 hover:border-[#ff3e3e] transition-all p-2"
                   >
-                    {playingAudio === agent.voiceSample ? (
+                    {playingAudio === agent.codename ? (
                       <Square className="w-3 h-3 text-[#ff3e3e]" />
                     ) : (
                       <Play className="w-4 h-4 text-[#ff3e3e]" />
                     )}
                   </button>
                 </div>
+
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <div>
@@ -213,6 +217,9 @@ const PricingModal: React.FC<PricingModalProps> = ({
                         {agent.pricePerCall === "FREE"
                           ? "FREE"
                           : `₹${agent.pricePerCall}/call`}
+                      </div>
+                      <div className="text-sm text-[#ff3e3e]/80 font-digital">
+                        Max Duration: {agent.maxCallDuration / 60} min
                       </div>
                     </div>
                     <div className="text-[#00ff87] font-digital text-lg">
@@ -241,10 +248,7 @@ const PricingModal: React.FC<PricingModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 text-[#ff3e3e]" />
                   <div className="text-[#00ff87] text-sm font-digital flex-1">
-                    {roastCounts[
-                      agent.codename as keyof typeof roastCounts
-                    ].toLocaleString()}{" "}
-                    Roasts Delivered
+                    {agent.description}
                   </div>
                 </div>
               </div>
@@ -261,7 +265,7 @@ const PricingModal: React.FC<PricingModalProps> = ({
                             : "bg-[#ff3a3a] hover:bg-[#ff5555] border-[#cc0000] text-white"
                         }`}
               >
-                DEPLOY AGENT
+                {agent.buttonText}
               </motion.button>
             </motion.div>
           ))}
@@ -276,10 +280,6 @@ const PricingModal: React.FC<PricingModalProps> = ({
         >
           ✕
         </button>
-
-        <div className="text-center text-xs text-gray-500 mt-6 px-4">
-          Prices shown per call. Select your agent to continue.
-        </div>
       </div>
     </motion.div>
   )

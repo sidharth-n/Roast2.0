@@ -23,6 +23,7 @@ const RoastForm: React.FC<Props> = ({ onSubmit, isSubmitting = false }) => {
   const [currentStep, setCurrentStep] = useState(0)
   const [showHowItWorks, setShowHowItWorks] = useState(false)
   const [invalidField, setInvalidField] = useState(false)
+  const [phoneError, setPhoneError] = useState(false)
   const [formData, setFormData] = useState<RoastFormData>({
     yourName: "",
     targetName: "",
@@ -74,6 +75,11 @@ const RoastForm: React.FC<Props> = ({ onSubmit, isSubmitting = false }) => {
     }
   }
 
+  const isValidPhoneNumber = (phone: string) => {
+    const phoneRegex = /^\d{10}$/ // Exactly 10 digits
+    return phoneRegex.test(phone)
+  }
+
   const handleNext = () => {
     const currentField = steps[currentStep].field
     const currentValue = formData[currentField as keyof RoastFormData]
@@ -83,13 +89,23 @@ const RoastForm: React.FC<Props> = ({ onSubmit, isSubmitting = false }) => {
       return
     }
 
+    if (currentField === "phone") {
+      if (!isValidPhoneNumber(currentValue)) {
+        setInvalidField(true)
+        setPhoneError(true)
+        return
+      }
+    }
+
     setInvalidField(false)
+    setPhoneError(false)
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(prev => prev + 1)
     } else {
       const bannedWordsError = checkForBannedWords(formData.funFacts)
       if (bannedWordsError) {
-        alert(bannedWordsError)
+        setShowBannedWordModal({ show: true, word: bannedWordsError })
         return
       }
       onSubmit(formData)
@@ -207,25 +223,40 @@ const RoastForm: React.FC<Props> = ({ onSubmit, isSubmitting = false }) => {
             {/* Input Fields - Same as before but with animation */}
             <div className="relative">
               {steps[currentStep].isPhone ? (
-                <div className="flex gap-2">
-                  <CountrySelect
-                    value={formData.countryCode}
-                    onChange={code => {
-                      setFormData(prev => ({ ...prev, countryCode: code }))
-                      setInvalidField(false)
-                    }}
-                  />
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={e => {
-                      setFormData(prev => ({ ...prev, phone: e.target.value }))
-                      setInvalidField(false)
-                    }}
-                    onBlur={handleInputBlur}
-                    placeholder={steps[currentStep].placeholder}
-                    className={getInputClassName(invalidField)}
-                  />
+                <div>
+                  <div className="flex gap-2">
+                    <CountrySelect
+                      value={formData.countryCode}
+                      onChange={code => {
+                        setFormData(prev => ({ ...prev, countryCode: code }))
+                        setInvalidField(false)
+                        setPhoneError(false)
+                      }}
+                    />
+                    <input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={e => {
+                        const value = e.target.value.replace(/\D/g, "")
+                        setFormData(prev => ({ ...prev, phone: value }))
+                        setInvalidField(false)
+                        setPhoneError(false)
+                      }}
+                      onBlur={handleInputBlur}
+                      maxLength={10}
+                      placeholder={steps[currentStep].placeholder}
+                      className={getInputClassName(invalidField)}
+                    />
+                  </div>
+                  {phoneError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-[#ff3e3e] text-sm mt-2 font-digital"
+                    >
+                      Please enter a valid 10-digit phone number
+                    </motion.div>
+                  )}
                 </div>
               ) : steps[currentStep].isTextArea ? (
                 <textarea

@@ -1,62 +1,61 @@
+import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { CreditCard, Minus, Plus, Flame, Star } from "lucide-react"
-import { useState, useEffect } from "react"
+import { CreditCard, Flame } from "lucide-react"
 import * as Slider from "@radix-ui/react-slider"
 
 interface PaymentConfirmationProps {
   agent: {
     name: string
     codename: string
-    pricePerMinute: number
+    pricePerCall: string | number
     roastLevel: string
     icon: string
+    maxCallDuration: number
   }
+  language: string
   onClose: () => void
   onConfirm: (config: {
-    duration: number
     intensity: number
     recording: boolean
+    language: string
   }) => void
 }
 
 const PaymentConfirmationModal = ({
   agent,
+  language,
   onClose,
   onConfirm,
 }: PaymentConfirmationProps) => {
-  const [duration, setDuration] = useState(1.5)
   const [intensity, setIntensity] = useState(50)
   const [includeRecording, setIncludeRecording] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(60)
-  const [offerApplied, setOfferApplied] = useState(false)
+  const [discountApplied, setDiscountApplied] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(30)
   const [showSavingsModal, setShowSavingsModal] = useState(false)
+  const [discountUsed, setDiscountUsed] = useState(false)
 
   // Calculate prices
-  const basePrice = agent.pricePerMinute * duration
-  const intensityPrice = (intensity / 100) * 1.0 // Max $1.00 for highest intensity
-  const recordingPrice = includeRecording ? 2.99 : 0
-
-  const subtotal = basePrice + intensityPrice + recordingPrice
-  const discount = offerApplied ? subtotal * 0.3 : 0
-  const total = subtotal - discount
-
-  const handleDurationChange = (increment: boolean) => {
-    setDuration(prev => {
-      const newValue = increment ? prev + 0.5 : prev - 0.5
-      return Math.min(Math.max(newValue, 1.5), 10)
-    })
-  }
+  const originalPrice =
+    typeof agent.pricePerCall === "string" ? 0 : agent.pricePerCall
+  const discount = 0.2 // 20% discount
+  const discountedPrice = originalPrice * (1 - discount)
+  const total = agent.pricePerCall === "FREE" ? 0 : Math.floor(discountedPrice)
+  const savings = originalPrice - total
 
   useEffect(() => {
-    if (timeLeft > 0 && offerApplied) {
+    if (timeLeft > 0 && discountApplied) {
       const timer = setInterval(() => setTimeLeft(t => t - 1), 1000)
       return () => clearInterval(timer)
+    } else if (timeLeft === 0 && discountApplied) {
+      setDiscountApplied(false)
+      setDiscountUsed(true)
     }
-  }, [timeLeft, offerApplied])
+  }, [timeLeft, discountApplied])
 
-  const handleApplyOffer = () => {
-    setOfferApplied(true)
+  const handleApplyDiscount = () => {
+    setDiscountApplied(true)
     setShowSavingsModal(true)
+    setTimeLeft(30)
     setTimeout(() => setShowSavingsModal(false), 3000)
   }
 
@@ -64,9 +63,9 @@ const PaymentConfirmationModal = ({
     <motion.div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-2">
       <motion.div
         className="bg-black/60 border-2 border-[#ff3e3e]/30 rounded-lg p-4 
-                           max-w-sm w-full shadow-lg shadow-[#ff3e3e]/20 max-h-[90vh] overflow-y-auto"
+                  max-w-sm w-full shadow-lg shadow-[#ff3e3e]/20 max-h-[90vh] overflow-y-auto"
       >
-        {/* Agent Info - Compact */}
+        {/* Agent Info */}
         <div className="flex items-center gap-3 mb-3 bg-black/40 p-2 rounded-lg border border-[#ff3e3e]/20">
           <img
             src={agent.icon}
@@ -76,54 +75,33 @@ const PaymentConfirmationModal = ({
           <div>
             <h3 className="text-white font-digital text-lg">{agent.name}</h3>
             <div className="text-[#ff3e3e] font-digital">
-              ${agent.pricePerMinute.toFixed(2)}/min
+              {agent.pricePerCall === "FREE"
+                ? "FREE"
+                : `₹${discountApplied ? total : originalPrice}`}
+            </div>
+            <div className="text-sm text-[#ff3e3e]/80 font-digital">
+              Max Duration: {agent.maxCallDuration / 60} min
             </div>
           </div>
         </div>
 
-        {/* Duration Control */}
+        {/* Language Selection */}
         <div className="bg-black/40 p-3 rounded-lg border border-[#ff3e3e]/20 mb-3">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-white font-digital text-sm">DURATION</span>
-            <div className="text-[#00ff87] font-digital">
-              ${basePrice.toFixed(2)}
-            </div>
+          <div className="text-white font-digital text-sm mb-2">
+            ROAST LANGUAGE
           </div>
-          <div className="flex items-center justify-between gap-3">
-            <button
-              onClick={() => handleDurationChange(false)}
-              disabled={duration <= 1.5}
-              className="bg-black/30 p-1.5 rounded border border-[#ff3e3e]/20 
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Minus className="w-4 h-4 text-white" />
-            </button>
-            <div className="text-white font-digital text-lg">
-              {duration.toFixed(1)} min
-            </div>
-            <button
-              onClick={() => handleDurationChange(true)}
-              disabled={duration >= 10}
-              className="bg-black/30 p-1.5 rounded border border-[#ff3e3e]/20
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Plus className="w-4 h-4 text-white" />
-            </button>
+          <div className="text-[#00ff87] font-digital">
+            {language === "HINDI" ? "हिंदी (Hindi)" : "English"}
           </div>
         </div>
 
         {/* Roast Intensity Slider */}
         <div className="bg-black/40 p-3 rounded-lg border border-[#ff3e3e]/20 mb-3">
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center gap-2">
-              <Flame className="w-4 h-4 text-[#ff3e3e]" />
-              <span className="text-white font-digital text-sm">
-                ROAST INTENSITY
-              </span>
-            </div>
-            <div className="text-[#ff3e3e] font-digital">
-              +${intensityPrice.toFixed(2)}
-            </div>
+          <div className="flex items-center gap-2 mb-2">
+            <Flame className="w-4 h-4 text-[#ff3e3e]" />
+            <span className="text-white font-digital text-sm">
+              ROAST INTENSITY
+            </span>
           </div>
 
           <Slider.Root
@@ -143,9 +121,9 @@ const PaymentConfirmationModal = ({
           </Slider.Root>
 
           <div className="flex justify-between mt-1 text-xs text-gray-400">
-            <span>Mild</span>
-            <span>Spicy</span>
-            <span>Inferno</span>
+            <span>Low</span>
+            <span>Medium</span>
+            <span>High</span>
           </div>
         </div>
 
@@ -161,125 +139,94 @@ const PaymentConfirmationModal = ({
               onChange={e => setIncludeRecording(e.target.checked)}
               className="rounded border-[#ff3e3e]/30 bg-black/30"
             />
-            <span className="text-white font-digital text-sm">
-              HD CALL RECORDING
-            </span>
-          </label>
-          <span className="text-[#00ff87] font-digital text-sm">+$2.99</span>
-        </div>
-
-        {/* Offer Section - Compact */}
-        {!offerApplied && timeLeft > 0 && (
-          <div
-            className="bg-[#ff3e3e]/5 border border-dashed border-[#ff3e3e]/30 
-                       rounded-lg p-2 mb-3 flex items-center justify-between gap-2"
-          >
-            <div className="bg-black/30 px-2 py-1 rounded">
-              <span className="text-[#ff3e3e] font-digital text-sm">
-                SPECIAL30
+            <div>
+              <span className="text-white font-digital text-sm">
+                I NEED THE CALL RECORDING
               </span>
+              <div className="text-[#ff3e3e]/60 text-xs font-digital"></div>
             </div>
-            <button
-              onClick={handleApplyOffer}
-              className="bg-[#ff3e3e] px-3 py-1 rounded font-digital text-sm
-                       hover:bg-[#ff5555] transition-colors"
-            >
-              APPLY
-            </button>
-          </div>
-        )}
-
-        {/* Price Breakdown Section */}
-        <div className="bg-black/40 p-3 rounded-lg border border-[#ff3e3e]/20 mb-3">
-          <div className="space-y-1 text-sm mb-2">
-            <div className="flex justify-between">
-              <span className="text-gray-400">Base ({duration} min)</span>
-              <span className="text-white">${basePrice.toFixed(2)}</span>
-            </div>
-            {intensityPrice > 0 && (
-              <div className="flex justify-between">
-                <span className="text-gray-400">Intensity</span>
-                <span className="text-[#ff3e3e]">
-                  +${intensityPrice.toFixed(2)}
-                </span>
-              </div>
-            )}
-            {includeRecording && (
-              <div className="flex justify-between">
-                <span className="text-gray-400">Recording</span>
-                <span className="text-[#00ff87]">+$2.99</span>
-              </div>
-            )}
-            {offerApplied && (
-              <div className="flex justify-between text-[#00ff87]">
-                <span>DISCOUNT</span>
-                <span>-${discount.toFixed(2)}</span>
-              </div>
-            )}
-          </div>
-          <div className="pt-2 border-t border-[#ff3e3e]/20 flex justify-between items-center">
-            <span className="text-white font-digital">TOTAL</span>
-            <div className="text-right">
-              {offerApplied && (
-                <div className="text-gray-500 line-through text-xs">
-                  ${subtotal.toFixed(2)}
-                </div>
-              )}
-              <div className="text-xl text-[#ff3e3e] font-bold font-digital">
-                ${total.toFixed(2)}
-              </div>
-            </div>
-          </div>
+          </label>
         </div>
 
-        {/* Timer and Deploy Button Section */}
-        <div className="relative">
-          {offerApplied && timeLeft > 0 && (
-            <div className="text-center text-[#00ff87] font-digital text-sm mb-2">
-              OFFER EXPIRES IN {timeLeft}s
-            </div>
-          )}
-
+        {/* Discount Button - Only show if not used before and not free */}
+        {agent.pricePerCall !== "FREE" && !discountApplied && !discountUsed && (
           <motion.button
+            onClick={handleApplyDiscount}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() =>
-              onConfirm({ duration, intensity, recording: includeRecording })
-            }
-            className="relative w-full py-2 px-4 rounded font-bold
-                     bg-[#ff3e3e] hover:bg-[#ff5555] text-white
-                     transform transition-all duration-200 
-                     border-b-4 border-[#cc0000]
-                     hover:border-b-2 hover:translate-y-[2px]
-                     font-digital tracking-wide text-sm
-                     flex items-center justify-center gap-2
-                     overflow-hidden"
+            className="w-full mb-3 py-2 px-4 rounded font-bold
+                      bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/30
+                      hover:bg-[#00ff87]/30 transition-all duration-200
+                      font-digital tracking-wide text-sm
+                      flex items-center justify-center gap-2"
           >
-            {offerApplied && timeLeft > 0 && (
+            APPLY 20% DISCOUNT
+          </motion.button>
+        )}
+
+        {/* Discount Timer Section */}
+        {discountApplied && timeLeft > 0 && (
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-2">
+              <div className="text-[#00ff87] font-digital text-sm">
+                LIMITED TIME OFFER
+              </div>
+              <div className="text-white font-digital bg-black/40 px-2 py-0.5 rounded">
+                {timeLeft}s remaining
+              </div>
+            </div>
+            <div className="relative w-full h-1 bg-[#ff3e3e]/20 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: "100%" }}
                 animate={{ width: "0%" }}
-                transition={{ duration: timeLeft, ease: "linear" }}
-                className="absolute inset-0 bg-gradient-to-r from-[#8b0000]/40 to-[#cc0000]/40"
+                transition={{ duration: 30, ease: "linear" }}
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#00ff87] to-[#00ff87]/50"
               />
-            )}
+            </div>
+          </div>
+        )}
 
-            <motion.div
-              animate={{
-                scale: offerApplied && timeLeft > 0 ? [1, 1.1, 1] : 1,
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="flex items-center justify-center gap-2 relative z-10"
-            >
-              <CreditCard className="w-4 h-4" />
-              DEPLOY NOW • ${total.toFixed(2)}
-            </motion.div>
-          </motion.button>
-        </div>
+        {/* Deploy Button with Pulsing Text */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() =>
+            onConfirm({
+              intensity,
+              recording: includeRecording,
+              language,
+            })
+          }
+          className="relative w-full py-2 px-4 rounded font-bold
+                   bg-[#ff3e3e] hover:bg-[#ff5555] text-white
+                   transform transition-all duration-200 
+                   border-b-4 border-[#cc0000]
+                   hover:border-b-2 hover:translate-y-[2px]
+                   font-digital tracking-wide text-sm
+                   flex items-center justify-center gap-2"
+        >
+          <CreditCard className="w-4 h-4" />
+          <motion.span
+            animate={
+              discountApplied && timeLeft > 0
+                ? {
+                    scale: [1, 1.05, 1],
+                  }
+                : {}
+            }
+            transition={{
+              duration: 1,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            {agent.pricePerCall === "FREE"
+              ? "DEPLOY FREE"
+              : `DEPLOY NOW • ₹${
+                  discountApplied && timeLeft > 0 ? total : originalPrice
+                }`}
+          </motion.span>
+        </motion.button>
 
         <button
           onClick={onClose}
@@ -303,7 +250,7 @@ const PaymentConfirmationModal = ({
                            text-center max-w-sm mx-4"
               >
                 <div className="text-[#00ff87] text-3xl font-digital mb-2">
-                  ${discount.toFixed(2)}
+                  ₹{savings}
                 </div>
                 <div className="text-white font-digital text-base mb-2">
                   SAVED ON YOUR ROAST!
