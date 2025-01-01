@@ -99,7 +99,7 @@ const PricingModal: React.FC<PricingModalProps> = ({
     {
       name: "AGENT JADE",
       codename: "HITMAN",
-      pricePerCall: 29,
+      pricePerCall: 1,
       icon: "/images/agent-pro.png",
       voiceSample: "/voices/jade.mp3",
       roastLevel: "Spicy",
@@ -113,7 +113,7 @@ const PricingModal: React.FC<PricingModalProps> = ({
     {
       name: "AGENT LUNA",
       codename: "ASSASSIN",
-      pricePerCall: 49,
+      pricePerCall: 1,
       icon: "/images/agent-elite.png",
       voiceSample: "/voices/luna.mp3",
       roastLevel: "Extra Hot",
@@ -128,7 +128,7 @@ const PricingModal: React.FC<PricingModalProps> = ({
     {
       name: "AGENT NOVA",
       codename: "TERMINATOR",
-      pricePerCall: 69,
+      pricePerCall: 1,
       icon: "/images/agent-legend.png",
       voiceSample: "/voices/nova.mp3",
       roastLevel: "Inferno",

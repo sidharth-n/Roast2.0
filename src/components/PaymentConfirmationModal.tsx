@@ -3,6 +3,13 @@ import { motion, AnimatePresence } from "framer-motion"
 import { CreditCard, Flame } from "lucide-react"
 import * as Slider from "@radix-ui/react-slider"
 
+// Add Razorpay type
+declare global {
+  interface Window {
+    Razorpay: any
+  }
+}
+
 interface PaymentConfirmationProps {
   agent: {
     name: string
@@ -19,6 +26,8 @@ interface PaymentConfirmationProps {
     recording: boolean
     language: string
   }) => void
+  onPaymentSuccess: () => void
+  onPaymentFailure: () => void
 }
 
 const PaymentConfirmationModal = ({
@@ -26,6 +35,8 @@ const PaymentConfirmationModal = ({
   language,
   onClose,
   onConfirm,
+  onPaymentSuccess,
+  onPaymentFailure,
 }: PaymentConfirmationProps) => {
   const [intensity, setIntensity] = useState(50)
   const [includeRecording, setIncludeRecording] = useState(false)
@@ -57,6 +68,70 @@ const PaymentConfirmationModal = ({
     setShowSavingsModal(true)
     setTimeLeft(30)
     setTimeout(() => setShowSavingsModal(false), 3000)
+  }
+
+  const handlePayment = async () => {
+    try {
+      // Calculate final amount based on discount
+      const finalAmount =
+        discountApplied && timeLeft > 0 ? total : originalPrice
+
+      // Create order
+      const response = await fetch(
+        "https://razorpay-test-orcin.vercel.app/api/payment",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: finalAmount,
+            productName: `AI Roast by ${agent.name}`,
+            storeName: "RoastGPT",
+            logoUrl: agent.icon, // Assuming agent.icon is a valid HTTPS URL
+          }),
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Payment initialization failed")
+      }
+
+      // Initialize Razorpay
+      const options = {
+        key: data.key,
+        amount: data.amount,
+        currency: data.currency,
+        name: "RoastGPT",
+        description: `AI Roast by ${agent.name}`,
+        order_id: data.orderId,
+        image: agent.icon,
+        handler: function (response: any) {
+          // Payment successful
+          onPaymentSuccess()
+          onConfirm({
+            intensity,
+            recording: includeRecording,
+            language,
+          })
+        },
+        modal: {
+          ondismiss: function () {
+            // Payment failed or modal closed
+            onPaymentFailure()
+          },
+        },
+        theme: {
+          color: "#ff3e3e",
+        },
+      }
+
+      const rzp = new window.Razorpay(options)
+      rzp.open()
+    } catch (error) {
+      console.error("Payment error:", error)
+      onPaymentFailure()
+    }
   }
 
   return (
@@ -190,12 +265,17 @@ const PaymentConfirmationModal = ({
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() =>
-            onConfirm({
-              intensity,
-              recording: includeRecording,
-              language,
-            })
+          onClick={
+            agent.pricePerCall === "FREE"
+              ? () => {
+                  onPaymentSuccess()
+                  onConfirm({
+                    intensity,
+                    recording: includeRecording,
+                    language,
+                  })
+                }
+              : handlePayment
           }
           className="relative w-full py-2 px-4 rounded font-bold
                    bg-[#ff3e3e] hover:bg-[#ff5555] text-white
@@ -215,7 +295,7 @@ const PaymentConfirmationModal = ({
                 : {}
             }
             transition={{
-              duration: 1,
+              duration: 1.5,
               repeat: Infinity,
               ease: "easeInOut",
             }}
