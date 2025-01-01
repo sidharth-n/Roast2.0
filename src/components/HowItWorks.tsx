@@ -51,16 +51,6 @@ const HowItWorks = ({ onClose }: HowItWorksProps) => (
           </ol>
         </div>
 
-        <div className="space-y-3">
-          <h3 className="text-[#ff3e3e] font-digital tracking-wider">
-            MISSION COSTS
-          </h3>
-          <ul className="list-disc list-inside space-y-1 ml-2 text-gray-400">
-            <li>Roast Call: $1 per call</li>
-            <li>Call Recording: $2.99 (optional)</li>
-          </ul>
-        </div>
-
         <div className="bg-[#ff3e3e]/10 border border-[#ff3e3e]/20 p-4 rounded-lg">
           <h3 className="text-[#ff3e3e] font-digital tracking-wider mb-2">
             MISSION BRIEFING
