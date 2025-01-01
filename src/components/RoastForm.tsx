@@ -29,7 +29,7 @@ const RoastForm: React.FC<Props> = ({ onSubmit, isSubmitting = false }) => {
     targetJob: "",
     funFacts: "",
     phone: "",
-    countryCode: "+1",
+    countryCode: "+91",
   })
 
   const steps = [

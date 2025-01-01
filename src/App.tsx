@@ -554,8 +554,8 @@ function App() {
           )}
         </AnimatePresence>
       </section>
-
-      <SampleSection />
+      {/* 
+      <SampleSection /> */}
 
       {/* Roast Form Section */}
       <section

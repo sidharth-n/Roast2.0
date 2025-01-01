@@ -14,6 +14,8 @@ interface Agent {
   gender: "MALE" | "FEMALE"
   globalRank: string
   popular?: boolean
+  pricePerCall: string | number
+  attractiveness: string
 }
 
 interface PricingModalProps {
@@ -82,33 +84,35 @@ const PricingModal: React.FC<PricingModalProps> = ({
 
   const agents: Agent[] = [
     {
-      name: "AGENT NEWBIE",
+      name: "AGENT ROXY",
       codename: "ROOKIE",
-      pricePerMinute: 0.49,
+      pricePerCall: "FREE",
       icon: "/images/agent-basic.png",
       voiceSample: "/audio/basic-agent.mp3",
       roastLevel: "Basic",
       description: "Perfect for first-time roasts",
-      buttonText: "DEPLOY AGENT",
-      gender: "MALE",
+      buttonText: "DEPLOY FREE",
+      gender: "FEMALE",
       globalRank: "#102",
+      attractiveness: "4/10",
     },
     {
-      name: "AGENT SMITH",
+      name: "AGENT JADE",
       codename: "HITMAN",
-      pricePerMinute: 0.99,
+      pricePerCall: 29,
       icon: "/images/agent-pro.png",
       voiceSample: "/audio/pro-agent.mp3",
       roastLevel: "Spicy",
       description: "Professional roasting specialist",
       buttonText: "DEPLOY AGENT",
-      gender: "MALE",
+      gender: "FEMALE",
       globalRank: "#34",
+      attractiveness: "6/10",
     },
     {
-      name: "AGENT ELI",
+      name: "AGENT LUNA",
       codename: "ASSASSIN",
-      pricePerMinute: 1.99,
+      pricePerCall: 49,
       icon: "/images/agent-elite.png",
       voiceSample: "/audio/elite-agent.mp3",
       roastLevel: "Extra Hot",
@@ -117,11 +121,12 @@ const PricingModal: React.FC<PricingModalProps> = ({
       gender: "FEMALE",
       globalRank: "#6",
       popular: true,
+      attractiveness: "8/10",
     },
     {
-      name: "AGENT 007",
+      name: "AGENT NOVA",
       codename: "TERMINATOR",
-      pricePerMinute: 2.99,
+      pricePerCall: 69,
       icon: "/images/agent-legend.png",
       voiceSample: "/audio/legendary-agent.mp3",
       roastLevel: "Inferno",
@@ -129,6 +134,7 @@ const PricingModal: React.FC<PricingModalProps> = ({
       buttonText: "DEPLOY AGENT",
       gender: "FEMALE",
       globalRank: "#1",
+      attractiveness: "10/10",
     },
   ]
 
@@ -204,7 +210,9 @@ const PricingModal: React.FC<PricingModalProps> = ({
                         {agent.name}
                       </h3>
                       <div className="text-2xl text-[#ff3e3e] font-bold mt-1">
-                        ${agent.pricePerMinute.toFixed(2)}/min
+                        {agent.pricePerCall === "FREE"
+                          ? "FREE"
+                          : `₹${agent.pricePerCall}/call`}
                       </div>
                     </div>
                     <div className="text-[#00ff87] font-digital text-lg">
@@ -214,9 +222,9 @@ const PricingModal: React.FC<PricingModalProps> = ({
 
                   <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
                     <div className="bg-black/40 px-2 py-1 rounded border border-[#ff3e3e]/20">
-                      <span className="text-gray-400">GENDER:</span>{" "}
+                      <span className="text-gray-400">RATING:</span>{" "}
                       <span className="text-white font-digital">
-                        {agent.gender}
+                        {agent.attractiveness}
                       </span>
                     </div>
                     <div className="bg-black/40 px-2 py-1 rounded border border-[#ff3e3e]/20">
@@ -270,8 +278,7 @@ const PricingModal: React.FC<PricingModalProps> = ({
         </button>
 
         <div className="text-center text-xs text-gray-500 mt-6 px-4">
-          Prices shown per minute. Configure duration and intensity in next
-          step.
+          Prices shown per call. Select your agent to continue.
         </div>
       </div>
     </motion.div>
