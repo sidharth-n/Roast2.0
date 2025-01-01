@@ -78,7 +78,6 @@ function App() {
     intensity: number
     recording: boolean
   } | null>(null)
-  const [selectedLanguage, setSelectedLanguage] = useState("ENGLISH")
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -308,34 +307,6 @@ function App() {
   const handleCallStart = (callId: string) => {
     setCurrentCallId(callId)
     setShowCallStatus(true)
-  }
-
-  const handlePaymentSuccess = () => {
-    setShowPaymentConfirmation(false)
-    setPaymentSuccess(true)
-    setShowPaymentResult(true)
-  }
-
-  const handlePaymentFailure = () => {
-    setShowPaymentConfirmation(false)
-    setPaymentSuccess(false)
-    setShowPaymentResult(true)
-  }
-
-  const handleResultClose = () => {
-    setShowPaymentResult(false)
-    if (!paymentSuccess) {
-      setShowPaymentConfirmation(true) // Go back to confirmation if payment failed
-    }
-  }
-
-  const handleConfirm = (config: {
-    intensity: number
-    recording: boolean
-    language: string
-  }) => {
-    // Handle the confirmation logic
-    console.log("Confirmed with config:", config)
   }
 
   return (
@@ -742,14 +713,11 @@ function App() {
         {showPaymentConfirmation && selectedAgent && (
           <PaymentConfirmationModal
             agent={selectedAgent}
-            language={selectedLanguage}
             onClose={() => {
               setShowPaymentConfirmation(false)
               setShowPricingModal(true) // Go back to agent selection
             }}
             onConfirm={handlePaymentConfirmation}
-            onPaymentSuccess={handlePaymentSuccess}
-            onPaymentFailure={handlePaymentFailure}
           />
         )}
       </AnimatePresence>
@@ -758,7 +726,7 @@ function App() {
         {showPaymentResult && (
           <PaymentResultModal
             success={paymentSuccess}
-            onClose={handleResultClose}
+            onClose={handlePaymentResult}
           />
         )}
       </AnimatePresence>
@@ -778,5 +746,4 @@ function App() {
     </div>
   )
 }
-
 export default App

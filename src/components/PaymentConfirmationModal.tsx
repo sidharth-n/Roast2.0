@@ -3,13 +3,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import { CreditCard, Flame } from "lucide-react"
 import * as Slider from "@radix-ui/react-slider"
 
-// Add Razorpay type
-declare global {
-  interface Window {
-    Razorpay: any
-  }
-}
-
 interface PaymentConfirmationProps {
   agent: {
     name: string
@@ -26,8 +19,6 @@ interface PaymentConfirmationProps {
     recording: boolean
     language: string
   }) => void
-  onPaymentSuccess: () => void
-  onPaymentFailure: () => void
 }
 
 const PaymentConfirmationModal = ({
@@ -35,8 +26,6 @@ const PaymentConfirmationModal = ({
   language,
   onClose,
   onConfirm,
-  onPaymentSuccess,
-  onPaymentFailure,
 }: PaymentConfirmationProps) => {
   const [intensity, setIntensity] = useState(50)
   const [includeRecording, setIncludeRecording] = useState(false)
@@ -76,7 +65,7 @@ const PaymentConfirmationModal = ({
       const finalAmount =
         discountApplied && timeLeft > 0 ? total : originalPrice
 
-      // Create order
+      // Create order using your endpoint
       const response = await fetch(
         "https://razorpay-test-orcin.vercel.app/api/payment",
         {
@@ -84,30 +73,24 @@ const PaymentConfirmationModal = ({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             amount: finalAmount,
-            productName: `AI Roast by ${agent.name}`,
-            storeName: "RoastGPT",
-            logoUrl: agent.icon, // Assuming agent.icon is a valid HTTPS URL
+            productName: `Roast by ${agent.name}`,
           }),
         }
       )
 
       const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error(data.error || "Payment initialization failed")
-      }
-
-      // Initialize Razorpay
+      // Configure Razorpay options - EXACTLY like your example
       const options = {
         key: data.key,
         amount: data.amount,
-        currency: data.currency,
-        name: "RoastGPT",
-        description: `AI Roast by ${agent.name}`,
+        currency: "INR",
+        name: "Test Store",
+        description: `Roast by ${agent.name}`,
         order_id: data.orderId,
-        image: agent.icon,
-        handler: function (response: any) {
-          // Payment successful
+        handler: function (response) {
+          // On successful payment
+          console.log("Payment Success:", response)
           onPaymentSuccess()
           onConfirm({
             intensity,
@@ -117,19 +100,17 @@ const PaymentConfirmationModal = ({
         },
         modal: {
           ondismiss: function () {
-            // Payment failed or modal closed
+            // On modal close/cancel
+            console.log("Payment Modal Closed")
             onPaymentFailure()
           },
-        },
-        theme: {
-          color: "#ff3e3e",
         },
       }
 
       const rzp = new window.Razorpay(options)
       rzp.open()
     } catch (error) {
-      console.error("Payment error:", error)
+      console.error("Error:", error)
       onPaymentFailure()
     }
   }
@@ -265,18 +246,7 @@ const PaymentConfirmationModal = ({
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={
-            agent.pricePerCall === "FREE"
-              ? () => {
-                  onPaymentSuccess()
-                  onConfirm({
-                    intensity,
-                    recording: includeRecording,
-                    language,
-                  })
-                }
-              : handlePayment
-          }
+          onClick={handlePayment}
           className="relative w-full py-2 px-4 rounded font-bold
                    bg-[#ff3e3e] hover:bg-[#ff5555] text-white
                    transform transition-all duration-200 
@@ -295,7 +265,7 @@ const PaymentConfirmationModal = ({
                 : {}
             }
             transition={{
-              duration: 1.5,
+              duration: 1,
               repeat: Infinity,
               ease: "easeInOut",
             }}

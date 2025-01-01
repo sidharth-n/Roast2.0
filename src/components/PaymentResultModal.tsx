@@ -4,11 +4,13 @@ import { CheckCircle, XCircle } from "lucide-react"
 interface PaymentResultModalProps {
   success: boolean
   onClose: () => void
+  buttonText: string
 }
 
 const PaymentResultModal: React.FC<PaymentResultModalProps> = ({
   success,
   onClose,
+  buttonText,
 }) => {
   return (
     <motion.div
@@ -38,12 +40,14 @@ const PaymentResultModal: React.FC<PaymentResultModalProps> = ({
           </h2>
           <p className="text-gray-400">
             {success
-              ? "Get ready for an epic roast!"
+              ? "Your agent is ready to roast! Click below to start the call."
               : "Please try again or contact support."}
           </p>
         </div>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={onClose}
           className="w-full bg-[#ff3e3e] hover:bg-[#ff5555] text-white 
                    py-3 px-6 rounded-lg text-lg font-bold
@@ -52,8 +56,8 @@ const PaymentResultModal: React.FC<PaymentResultModalProps> = ({
                    hover:border-b-2 hover:translate-y-[2px]
                    flex items-center justify-center gap-2"
         >
-          {success ? "Continue" : "Close"}
-        </button>
+          {buttonText}
+        </motion.button>
       </motion.div>
     </motion.div>
   )
